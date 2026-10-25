@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Queen Of Angel — Planet Ring Background</title>
+<style>
+  .music-player-card {
+    max-width: 430px;
+    position: relative;
+}
+
+.music-back {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 38px;
+    height: 38px;
+    color: white;
+    background: #071426;
+    border: 1px solid #00f0ff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.music-heading {
+    color: #00f0ff;
+    font-size: 11px;
+    letter-spacing: 4px;
+    margin: 5px 0 20px;
+}
+
+#album-cover {
+    display: block;
+    width: min(250px, 85%);
+    aspect-ratio: 1;
+    object-fit: cover;
+    margin: 0 auto 20px;
+    border-radius: 15px;
+    border: 1px solid #00f0ff;
+    box-shadow: 0 0 24px rgba(0,240,255,.35);
+}
+
+#song-title {
+    margin: 8px 0;
+    font-size: 21px;
+    overflow-wrap: anywhere;
+}
+
+#song-artist {
+    color: #a8dce8;
+    margin: 0 0 22px;
+    font-size: 13px;
+}
+
+.progress-area {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 11px;
+    color: #c9faff;
+}
+
+#music-progress {
+    flex: 1;
+    min-width: 0;
+    accent-color: #00f0ff;
+    cursor: pointer;
+}
+
+.player-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    margin: 20px 0;
+}
+
+.player-buttons button {
+    border: 0;
+    color: white;
+    background: transparent;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.player-buttons #play-pause-button {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    color: #001018;
+    background: #00f0ff;
+    box-shadow: 0 0 22px rgba(0,240,255,.6);
+}
+
+.volume-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0 22px;
+}
+
+.volume-row input {
+    width: 130px;
+    accent-color: #00f0ff;
+}
+
+.music-list {
+    width: 100%;
+    text-align: left;
+}
+
+.music-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid rgba(0,240,255,.3);
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.music-list li.active {
+    background: rgba(0,240,255,.13);
+    border-color: #00f0ff;
+}
+
+.music-list .track-name {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: white;
+}
+
+.music-list .track-number {
+    color: #00f0ff;
+}
+
+.music-list .track-status {
+    color: #00f0ff;
+}
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    max-width: 640px;
+    margin: 0 auto;
+}
+.photo-frame {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    aspect-ratio: auto;
+    border: 2px solid #00f0ff;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, .55);
+    box-shadow: 0 0 10px #00f0ff,
+                0 0 22px rgba(0, 240, 255, .65);
+}
+* { box-sizing: border-box; }
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+    overflow: hidden;
+    background: #05050d;
+}
+/* Animasi planet berada di lapisan paling belakang */
+#webgl-container {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+}
+#webgl-container canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+/* Bintang bergerak tambahan */
+.stars {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: transparent url("https://www.transparenttextures.com/patterns/stardust.png") repeat;
+    animation: moveStars 60s linear infinite;
+}
+@keyframes moveStars {
+    from { background-position: 0 0; }
+    to { background-position: 10000px 5000px; }
+}
+.container {
+    position: relative;
+    z-index: 2;
+    width: min(320px, calc(100vw - 32px));
+    margin: 70px auto 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.72);
+    border: 1px solid rgba(0, 240, 255, 0.95);
+    border-radius: 15px;
+    box-shadow:
+        0 0 12px rgba(0, 240, 255, 0.95),
+        0 0 28px rgba(0, 240, 255, 0.8),
+        0 0 50px rgba(0, 140, 255, 0.65),
+        0 0 80px rgba(0, 100, 255, 0.4),
+        inset 0 0 18px rgba(0, 240, 255, 0.12);
+    animation: fadeIn 2s;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.container img {
+    width: 200px;
+    height: 200px;
+    max-width: 100%;
+    object-fit: cover;
+    border-radius: 18px;
+    border: 3px solid #00f0ff;
+    margin-bottom: 10px;
+    box-shadow: 0 0 10px #00f0ff, 0 0 22px #00f0ff,
+                0 0 40px rgba(0, 140, 255, 0.9);
+}
+h2 {
+    color: #00f0ff;
+    text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
+}
+.link {
+    display: block;
+    margin: 12px 0;
+    padding: 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    color: white;
+    border: 2px solid #00f0ff;
+    background: rgba(0, 8, 25, 0.62);
+    box-shadow: 0 0 8px #00f0ff, 0 0 18px rgba(0, 240, 255, 0.7),
+                inset 0 0 8px rgba(0, 240, 255, 0.18);
+    transition: 0.3s;
+}
+.link:hover {
+    background: #00f0ff;
+    color: black;
+    box-shadow: 0 0 14px #00f0ff, 0 0 30px #00f0ff,
+                0 0 48px rgba(0, 140, 255, 0.95);
+    transform: scale(1.04);
+}
+@media (max-height: 650px) {
+    .container { margin-top: 12px; padding: 12px; }
+    .container img { width: 120px; }
+    .link { margin: 7px 0; padding: 9px; }
+}
+/* Panel konten muncul di atas animasi planet tanpa mengganti background */
+.panel {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    display: none;
+    overflow-y: auto;
+    padding: 28px 16px;
+    background: rgba(2, 4, 18, 0.42);
+    backdrop-filter: blur(2px);
+}
+.panel.active { display: block; }
+.panel-card {
+    width: min(920px, 100%);
+    margin: 18px auto;
+    padding: 24px;
+    border: 1px solid rgba(0, 240, 255, .8);
+    border-radius: 18px;
+    background: rgba(3, 8, 28, .82);
+    box-shadow: 0 0 25px rgba(0, 240, 255, .35), inset 0 0 22px rgba(0, 240, 255, .07);
+}
+.panel-title { margin: 0 0 8px; color: #00f0ff; text-shadow: 0 0 12px #00f0ff; }
+.panel-description { color: #d9faff; margin: 0 0 20px; }
+.panel-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 18px 0; }
+.neon-button {
+    display: inline-block; cursor: pointer; padding: 11px 16px; border-radius: 9px;
+    border: 1px solid #00f0ff; background: rgba(0, 240, 255, .08); color: white;
+    text-decoration: none; font-weight: bold; font-size: 14px;
+    box-shadow: 0 0 12px rgba(0,240,255,.14); transition: .25s;
+}
+.neon-button:hover { background: #00f0ff; color: #001018; box-shadow: 0 0 22px #00f0ff; }
+.photo-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; max-width: 640px; margin: 0 auto; }
+.photo-frame {
+  width: 100%;     /* penuh sel grid */
+  aspect-ratio: 1; /* buat kotak */
+  object-fit: cover;
+  border-radius: 12px;
+  border-radius: 12px;
+  cursor: zoom-in;
+  transition: transform 0.3s ease;
+  min-width: 0; padding: 10px; border: 2px solid #00f0ff; border-radius: 14px;
+    background: rgba(0, 0, 0, .55);
+    box-shadow: 0 0 10px #00f0ff, 0 0 22px rgba(0,240,255,.65),
+                inset 0 0 12px rgba(0,240,255,.18);
+    transition: transform .25s, box-shadow .25s;
+}
+.photo-frame:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 15px #00f0ff, 0 0 32px #00f0ff,
+                0 0 48px rgba(0,140,255,.85);
+}
+.photo-frame img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px; border: 0; margin: 0; cursor: zoom-in; transition: transform .25s, filter .25s; }
+.photo-frame img:hover { filter: brightness(1.12); }
+.photo-frame p { margin: 10px 0 2px; color: #dffcff; font-weight: bold; overflow-wrap: anywhere; }
+.media-player { display: block; width: min(640px, 100%); margin: 18px auto; border-radius: 12px; }
+.music-upload { display: block; width: min(640px, 100%); margin: 18px auto; padding: 14px; border: 1px dashed #00f0ff; border-radius: 12px; background: rgba(0,240,255,.06); color: white; }
+.music-note { color: #bdefff; font-size: 13px; line-height: 1.5; }
+.music-list { list-style: none; padding: 0; margin: 18px auto; width: min(640px, 100%); text-align: left; }
+.music-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0; padding: 10px; border: 1px solid rgba(0,240,255,.65); border-radius: 10px; background: rgba(0,0,0,.4); }
+.music-list .track-name { flex: 1; min-width: 120px; overflow-wrap: anywhere; }
+.music-list button { cursor: pointer; color: white; border: 1px solid #00f0ff; background: rgba(0,240,255,.1); border-radius: 7px; padding: 7px 10px; }
+.music-list button:hover { background: #00f0ff; color: #001018; box-shadow: 0 0 15px #00f0ff; }
+.music-controls { width: min(640px, 100%); margin: 12px auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+.music-controls button { cursor: pointer; padding: 10px 14px; color: white; background: rgba(0,240,255,.1); border: 1px solid #00f0ff; border-radius: 9px; box-shadow: 0 0 10px rgba(0,240,255,.2); }
+.music-controls button:hover { color: #001018; background: #00f0ff; box-shadow: 0 0 18px #00f0ff; }
+.volume-control { display: flex; align-items: center; gap: 8px; color: #d9faff; font-size: 14px; }
+.volume-control input { width: 125px; accent-color: #00f0ff; }
+.now-playing { color: #bdefff; margin: 8px 0; overflow-wrap: anywhere; }
+.lightbox { display: none; position: fixed; inset: 0; z-index: 20; align-items: center; justify-content: center; padding: 24px; background: rgba(0,0,10,.9); cursor: zoom-out; }
+.lightbox.active { display: flex; }
+.lightbox img { max-width: min(92vw, 1000px); max-height: 85vh; object-fit: contain; border: 2px solid #00f0ff; border-radius: 12px; box-shadow: 0 0 20px #00f0ff, 0 0 55px rgba(0,140,255,.8); cursor: default; }
+.lightbox-close { position: absolute; top: 14px; right: 18px; color: white; font-size: 32px; border: 1px solid #00f0ff; border-radius: 50%; background: #061322; width: 44px; height: 44px; cursor: pointer; }
+.close-button { margin-top: 18px; }
+@media (max-width: 650px) {
+    .panel { padding: 12px 10px; }
+    .panel-card { padding: 16px 12px; margin: 8px auto; }
+    .photo-grid { grid-template-columns: 1fr; gap: 15px; }
+    .photo-frame { max-width: 360px; width: 100%; margin: auto; }
+}
+.zoom-controls {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 22;
+    display: flex;
+    gap: 8px;
+}
+
+.zoom-controls button {
+    min-width: 42px;
+    padding: 9px 12px;
+    color: white;
+    background: #061322;
+    border: 1px solid #00f0ff;
+    border-radius: 8px;
+    font-size: 17px;
+    cursor: pointer;
+    box-shadow: 0 0 12px #00f0ff;
+}
+
+#lightbox-image {
+    transform: scale(1);
+    transition: transform 0.15s ease;
+    touch-action: pan-x pan-y pinch-zoom;
+    user-select: none;
+}
+
+@media (max-width: 600px) {
+    .zoom-controls {
+        top: 12px;
+        left: 12px;
+    }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+<div id="webgl-container"></div>
+<div class="stars"></div>
+<div class="container">
+
+<img src="c:\Users\First USER\Downloads\Belajar Coding\Vyna_Sylviana.jpg">
+
+<h2>Queen Of Angel</h2>
+<p>Vyna Sylviana</p>
+
+<a class="link" href="https://instagram.com/vynsy22" target="_blank" rel="noopener noreferrer">Instagram</a>
+<a class="link" href="https://www.tiktok.com/@vyns406?_r=1&_t=ZS-9ANpDKHsf3N" target="_blank" rel="noopener noreferrer">TikTok</a>
+<a class="link" href="#galeri" onclick="openPanel('gallery-panel'); return false;">My File</a>
+<a class="link" href="#musik" onclick="openPanel('music-panel'); return false;">My Music</a>
+
+</div>
+
+<!-- Panel galeri: background planet tetap berjalan di belakangnya -->
+<section class="panel" id="gallery-panel" aria-hidden="true">
+  <div class="panel-card">
+    <h2 class="panel-title">My Queen</h2>
+    <p class="panel-description">You Are My Heart.</p>
+    ```html
+<div class="photo-grid">
+  <div class="photo-frame">
+    <img src="Vy1.jpg" alt="Foto 1" onclick="showPhoto(this)">
+    <p>Foto 1</p>
+  </div>
+
+  <div class="photo-frame">
+    <img src="Vy2.jpg" alt="Foto 2" onclick="showPhoto(this)">
+    <p>Foto 2</p>
+  </div>
+
+  <div class="photo-frame">
+    <img src="Vy3.jpg" alt="Foto 3" onclick="showPhoto(this)">
+    <p>Foto 3</p>
+  </div>
+
+  <div class="photo-frame">
+    <img src="Vy4.jpg" alt="Foto 4" onclick="showPhoto(this)">
+    <p>Foto 4</p>
+  </div>
+
+  <div class="photo-frame">
+    <img src="Vy5.jpg" alt="Foto 5" onclick="showPhoto(this)">
+    <p>Foto 5</p>
+  </div>
+
+  <div class="photo-frame">
+    <img src="Vy6.jpg" alt="Foto 6" onclick="showPhoto(this)">
+    <p>Foto 6</p>
+  </div>
+
+  <div class="photo-frame">
+    <img src="Vy7.jpg" alt="Foto 7" onclick="showPhoto(this)">
+    <p>Foto 7</p>
+  </div>
+
+  <div class="photo-frame">
+    <img src="Vy8.jpeg" alt="Foto 8" onclick="showPhoto(this)">
+    <p>Foto 8</p>
+  </div>
+
+  <div class="photo-frame">
+    <img src="Vy9.jpg" alt="Foto 9" onclick="showPhoto(this)">
+    <p>Foto 9</p>
+  </div>
+</div>
+```
+
+    <div class="panel-actions">
+      <a class="neon-button" href="https://drive.google.com/drive/folders/1jq2veWxqnZGkFyf5CbE1yiFefYDOGQhT?usp=drive_link" target="_blank" rel="noopener noreferrer">Buka Google Drive</a>
+      <button class="neon-button" type="button" onclick="closePanels()">Kembali</button>
+    </div>
+  </div>
+</section>
+
+```html
+<!-- Pembesar foto -->
+<div class="lightbox" id="photo-lightbox"
+     onclick="hidePhoto(event)" aria-hidden="true">
+
+  <button class="lightbox-close" type="button"
+          onclick="hidePhoto(event)">×</button>
+
+  <div class="zoom-controls">
+    <button type="button" onclick="zoomPhoto(0.8, event)">−</button>
+    <button type="button" onclick="zoomPhoto(1.25, event)">+</button>
+    <button type="button" onclick="resetPhotoZoom(event)">Reset</button>
+  </div>
+
+  <img id="lightbox-image" src="" alt="Foto diperbesar">
+</div>
+```
+
+<!-- Panel musik juga tampil di atas background planet yang sama -->
+```html
+<section class="panel" id="music-panel" aria-hidden="true">
+  <div class="panel-card music-player-card">
+
+    <button class="music-back" onclick="closePanels()"
+            type="button">←</button>
+
+    <p class="music-heading">NOW PLAYING</p>
+
+    <img id="album-cover"
+         src="https://placehold.co/500x500/071426/00f0ff?text=QUEEN+OF+ANGEL"
+         alt="Cover musik">
+
+    <h2 id="song-title">Pilih lagu</h2>
+    <p id="song-artist">Queen Of Angel</p>
+
+    <audio id="audio-player" preload="metadata"></audio>
+
+    <div class="progress-area">
+      <span id="current-time">0:00</span>
+      <input id="music-progress" type="range"
+             min="0" max="100" value="0" step="0.1">
+      <span id="duration-time">0:00</span>
+    </div>
+
+    <div class="player-buttons">
+      <button onclick="playPreviousTrack()" type="button">⏮</button>
+      <button id="play-pause-button"
+              onclick="toggleMusicPlayback()" type="button">▶</button>
+      <button onclick="playNextTrack()" type="button">⏭</button>
+    </div>
+
+    <div class="volume-row">
+      <span>🔊</span>
+      <input id="volume-slider" type="range"
+             min="0" max="1" step="0.01" value="0.8">
+      <span id="volume-value">80%</span>
+    </div>
+
+    <div id="music-list" class="music-list"></div>
+
+  </div>
+</section>
+```
+<script>
+// Klik foto galeri untuk memperbesar, klik area gelap atau X untuk menutup.
+let photoZoom = 1;
+
+function showPhoto(img) {
+    const box = document.getElementById('photo-lightbox');
+    const large = document.getElementById('lightbox-image');
+
+    photoZoom = 1;
+    large.src = img.src;
+    large.alt = img.alt || 'Foto diperbesar';
+    large.style.transform = 'scale(1)';
+
+    box.classList.add('active');
+    box.setAttribute('aria-hidden', 'false');
+}
+
+function zoomPhoto(amount, event) {
+    if (event) event.stopPropagation();
+
+    photoZoom = Math.max(0.5, Math.min(4, photoZoom * amount));
+
+    document.getElementById('lightbox-image')
+        .style.transform = `scale(${photoZoom})`;
+}
+
+function resetPhotoZoom(event) {
+    if (event) event.stopPropagation();
+
+    photoZoom = 1;
+    document.getElementById('lightbox-image')
+        .style.transform = 'scale(1)';
+}
+
+function hidePhoto(event) {
+    if (event && event.target.id === 'lightbox-image') return;
+    if (event) event.stopPropagation();
+
+    const box = document.getElementById('photo-lightbox');
+    box.classList.remove('active');
+    box.setAttribute('aria-hidden', 'true');
+
+    const large = document.getElementById('lightbox-image');
+    large.src = '';
+    large.style.transform = 'scale(1)';
+    photoZoom = 1;
+}
+// Daftar putar mencakup lagu website dan lagu lokal yang dipilih pengunjung.
+const musicQueue = [
+  { path: 'music/lagu1.mp3', title: 'Lagu 1', local: false },
+  { path: 'music/lagu2.mp3', title: 'Lagu 2', local: false }
+];
+let currentTrackIndex = -1;
+let localObjectUrls = [];
+
+function renderMusicList() {
+  const list = document.getElementById('music-list');
+  if (!list) return;
+  list.innerHTML = '';
+  musicQueue.forEach((track, index) => {
+    const li = document.createElement('li');
+    const name = document.createElement('span');
+    name.className = 'track-name';
+    name.textContent = (index + 1) + '. ' + track.title + (track.local ? ' (file perangkat)' : '');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = '▶ Putar';
+    button.addEventListener('click', () => playTrackAt(index));
+    li.append(name, button);
+    list.appendChild(li);
+  });
+}
+
+function playTrackAt(index) {
+  if (!musicQueue.length) return;
+  if (index < 0) index = musicQueue.length - 1;
+  if (index >= musicQueue.length) index = 0;
+  currentTrackIndex = index;
+  const track = musicQueue[currentTrackIndex];
+  const player = document.getElementById('audio-player');
+  player.src = track.path;
+  player.load();
+  document.getElementById('now-playing').textContent = 'Sedang diputar: ' + track.title;
+  document.getElementById('play-pause-button').textContent = '⏸ Jeda';
+  player.play().catch(() => {
+    document.getElementById('play-pause-button').textContent = '▶ Putar';
+    alert('Lagu belum dapat diputar. Pastikan file tersedia dan nama/lokasi file sesuai. Untuk lagu website, cek folder music di GitHub.');
+  });
+}
+
+function playWebsiteTrack(path, title) {
+  let index = musicQueue.findIndex(track => !track.local && track.path === path);
+  if (index === -1) {
+    musicQueue.push({ path, title, local: false });
+    renderMusicList();
+    index = musicQueue.length - 1;
+  }
+  playTrackAt(index);
+}
+function playNextTrack() { if (musicQueue.length) playTrackAt(currentTrackIndex + 1); }
+function playPreviousTrack() {
+  const player = document.getElementById('audio-player');
+  if (player.currentTime > 3) { player.currentTime = 0; return; }
+  if (musicQueue.length) playTrackAt(currentTrackIndex - 1);
+}
+function toggleMusicPlayback() {
+  const player = document.getElementById('audio-player');
+  if (!player.src) { playTrackAt(0); return; }
+  if (player.paused) player.play().then(() => {
+    document.getElementById('play-pause-button').textContent = '⏸ Jeda';
+  }).catch(() => {});
+  else { player.pause(); document.getElementById('play-pause-button').textContent = '▶ Putar'; }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const player = document.getElementById('audio-player');
+  const input = document.getElementById('local-music-file');
+  const volumeSlider = document.getElementById('volume-slider');
+  const volumeValue = document.getElementById('volume-value');
+  player.volume = 0.8;
+  volumeSlider.addEventListener('input', () => {
+    player.volume = Number(volumeSlider.value);
+    volumeValue.textContent = Math.round(player.volume * 100) + '%';
+  });
+  player.addEventListener('play', () => { document.getElementById('play-pause-button').textContent = '⏸ Jeda'; });
+  player.addEventListener('pause', () => { document.getElementById('play-pause-button').textContent = '▶ Putar'; });
+  // Otomatis pindah ke lagu berikutnya setelah lagu selesai.
+  player.addEventListener('ended', playNextTrack);
+  input.addEventListener('change', () => {
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+    files.forEach(file => {
+      const url = URL.createObjectURL(file);
+      localObjectUrls.push(url);
+      musicQueue.push({ path: url, title: file.name, local: true });
+    });
+    renderMusicList();
+    // Mulai putar lagu pertama dari file yang baru dipilih.
+    playTrackAt(musicQueue.length - files.length);
+    input.value = '';
+  });
+  renderMusicList();
+});
+
+function openPanel(panelId) {
+  closePanels();
+  const panel = document.getElementById(panelId);
+  if (panel) {
+    panel.classList.add('active');
+    panel.setAttribute('aria-hidden', 'false');
+  }
+}
+function closePanels() {
+  document.querySelectorAll('.panel').forEach(panel => {
+    panel.classList.remove('active');
+    panel.setAttribute('aria-hidden', 'true');
+  });
+  const video = document.querySelector('#music-panel video');
+  if (video) video.pause();
+  const audio = document.querySelector('#music-panel audio');
+  if (audio) audio.pause();
+  const playButton = document.getElementById('play-pause-button');
+  if (playButton) playButton.textContent = '▶ Putar';
+}
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') { closePanels(); hidePhoto(); }
+});
+
+        // Setup Scene, Camera, Renderer
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        
+        // Kabut latar belakang untuk efek kedalaman
+        scene.fog = new THREE.FogExp2(0x05050d, 0.012);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(20, 15, 30);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setClearColor(0x000000, 0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Kontrol Mouse / Touch (Bisa diputar dengan mouse)
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // -------------------------------------------------------------
+        // 1. MEMBUAT BOLA PLANET (PARTIKEL)
+        // -------------------------------------------------------------
+        const planetRadius = 7;
+        const planetParticleCount = 300000;
+        const planetGeometry = new THREE.BufferGeometry();
+        const planetPositions = new Float32Array(planetParticleCount * 3);
+        const planetColors = new Float32Array(planetParticleCount * 3);
+
+        const colorCoreBlue = new THREE.Color(0x00d2ff);
+        const colorCoreWhite = new THREE.Color(0xffffff);
+
+        for (let i = 0; i < planetParticleCount; i++) {
+            // Distribusi acak permukaan bola (Sphere Surface)
+            const u = Math.random();
+            const v = Math.random();
+            const theta = u * 2.0 * Math.PI;
+            const phi = Math.acos(2.0 * v - 1.0);
+            const r = planetRadius + (Math.random() - 0.5) * 0.4;
+
+            const x = r * Math.sin(phi) * Math.cos(theta);
+            const y = r * Math.sin(phi) * Math.sin(theta);
+            const z = r * Math.cos(phi);
+
+            planetPositions[i * 3] = x;
+            planetPositions[i * 3 + 1] = y;
+            planetPositions[i * 3 + 2] = z;
+
+            // Variasi Warna Planet (biru & putih)
+            const mixedColor = colorCoreBlue.clone().lerp(colorCoreWhite, Math.random() * 0.5);
+            planetColors[i * 3] = mixedColor.r;
+            planetColors[i * 3 + 1] = mixedColor.g;
+            planetColors[i * 3 + 2] = mixedColor.b;
+        }
+
+        planetGeometry.setAttribute('position', new THREE.BufferAttribute(planetPositions, 3));
+        planetGeometry.setAttribute('color', new THREE.BufferAttribute(planetColors, 3));
+
+        const planetMaterial = new THREE.PointsMaterial({
+            size: 0.12,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending
+        });
+
+        const planetMesh = new THREE.Points(planetGeometry, planetMaterial);
+        scene.add(planetMesh);
+
+        // -------------------------------------------------------------
+        // 2. MEMBUAT CINCIN PLANET (RING OF PARTICLES)
+        // -------------------------------------------------------------
+        const ringParticleCount = 300000;
+        const ringGeometry = new THREE.BufferGeometry();
+        const ringPositions = new Float32Array(ringParticleCount * 3);
+        const ringColors = new Float32Array(ringParticleCount * 3);
+
+        const colorCyan = new THREE.Color(0x00f0ff);
+        const colorDarkBlue = new THREE.Color(0x0044ff);
+        const colorGold = new THREE.Color(0xffaa00);
+
+        for (let i = 0; i < ringParticleCount; i++) {
+            const innerRadius = 10;
+            const outerRadius = 22;
+            const radius = THREE.MathUtils.lerp(innerRadius, outerRadius, Math.pow(Math.random(), 1.5));
+            const angle = Math.random() * Math.PI * 2;
+
+            // Posisi melingkar dengan sedikit variasi ketebalan (Y)
+            const x = Math.cos(angle) * radius;
+            const y = (Math.random() - 0.5) * (1.2 * (radius / outerRadius));
+            const z = Math.sin(angle) * radius;
+
+            ringPositions[i * 3] = x;
+            ringPositions[i * 3 + 1] = y;
+            ringPositions[i * 3 + 2] = z;
+
+            // Pewarnaan Cincin Gradasi Biru, Cyan, hingga Emas di bagian luar
+            let baseColor;
+            if (radius < 13) {
+                baseColor = colorDarkBlue.clone().lerp(colorCyan, Math.random());
+            } else if (radius < 18) {
+                baseColor = colorCyan.clone().lerp(colorCoreWhite, Math.random() * 0.7);
+            } else {
+                baseColor = colorCyan.clone().lerp(colorGold, Math.random() * 0.8);
+            }
+
+            ringColors[i * 3] = baseColor.r;
+            ringColors[i * 3 + 1] = baseColor.g;
+            ringColors[i * 3 + 2] = baseColor.b;
+        }
+
+        ringGeometry.setAttribute('position', new THREE.BufferAttribute(ringPositions, 3));
+        ringGeometry.setAttribute('color', new THREE.BufferAttribute(ringColors, 3));
+
+        const ringMaterial = new THREE.PointsMaterial({
+            size: 0.1,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending
+        });
+
+        const ringMesh = new THREE.Points(ringGeometry, ringMaterial);
+        
+        // Miringkan Cincin Planet
+        ringMesh.rotation.x = Math.PI / 7;
+        ringMesh.rotation.z = -Math.PI / 10;
+        scene.add(ringMesh);
+
+        // -------------------------------------------------------------
+        // 3. DEBU BINTANG & PARTIKEL LATAR BELAKANG
+        // -------------------------------------------------------------
+        const bgParticleCount = 10000;
+        const bgGeometry = new THREE.BufferGeometry();
+        const bgPositions = new Float32Array(bgParticleCount * 3);
+
+        for (let i = 0; i < bgParticleCount; i++) {
+            bgPositions[i * 3] = (Math.random() - 0.5) * 120;
+            bgPositions[i * 3 + 1] = (Math.random() - 0.5) * 120;
+            bgPositions[i * 3 + 2] = (Math.random() - 0.5) * 120;
+        }
+
+        bgGeometry.setAttribute('position', new THREE.BufferAttribute(bgPositions, 3));
+
+        const bgMaterial = new THREE.PointsMaterial({
+            size: 0.08,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.4
+        });
+
+        const bgMesh = new THREE.Points(bgGeometry, bgMaterial);
+        scene.add(bgMesh);
+
+        // -------------------------------------------------------------
+        // ANIMASI & LOOP RENDER
+        // -------------------------------------------------------------
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Putar Planet & Cincin
+            planetMesh.rotation.y += 0.002;
+            ringMesh.rotation.y += 0.003;
+            bgMesh.rotation.y -= 0.0003;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Responsif saat jendela browser di-resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Jalankan Animasi
+        animate();
+    
+</script>
+</body>
+</html>
